@@ -1,0 +1,12 @@
+{
+  "name": "jethr-calcolo-netto",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Prototipo RAL -> netto (anno d'imposta 2026). Motore puro (calcolo.js) + server HTTP senza dipendenze + UI statica.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/test.js",
+    "test:integration": "node test/test-integration.js"
+  }
+}

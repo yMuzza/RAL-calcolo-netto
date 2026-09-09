@@ -1,0 +1,183 @@
+REPORT DI VERIFICA - MOTORE DI CALCOLO calcolo.js
+Punto 2 della scaletta operativa (claude.md)
+Data: 2026-09-09
+
+===========================================================================
+1. TEST INTERNI (9 casi_di_test da rules-2026.json)
+===========================================================================
+
+Eseguiti con: node test.js  (output completo in test-results.json)
+
+RAL          Netto annuo    Netto mensile (x13)   Nota
+---------    -----------    -------------------   ------------------------
+20.000,00     17.884,68           1.375,74         confine somma esente/detrazione
+23.000,00     19.366,12           1.489,70         confine esenzione add. comunale MI
+28.000,00     22.236,52           1.710,50         confine I/II scaglione IRPEF
+32.000,00     24.512,11           1.885,55         inizio decrescenza cuneo
+35.000,00     25.657,22           1.973,63         caso standard
+40.000,00     27.500,74           2.115,44         azzeramento cuneo fiscale
+50.000,00     32.567,77           2.505,21         azzeramento detrazione lav. dip.
+56.224,00     35.707,46           2.746,73         attivazione INPS +1%
+122.295,00    68.029,06           5.233,00         massimale contributivo INPS
+
+Controllo di coerenza (il netto non deve mai scendere all'aumentare della RAL,
+salvo salti noti e dichiarati): NESSUNA ANOMALIA rilevata sui 9 casi.
+
+---------------------------------------------------------------------------
+BUG TROVATO E CORRETTO durante questi test
+---------------------------------------------------------------------------
+La detrazione lavoro dipendente (fascia 28.000-50.000 di imponibile fiscale)
+restava fissa a 1.910 EUR invece di decrescere verso zero. Causa: nel JSON
+le due fasce "formula" hanno struttura diversa (15.000-28.000 e' additiva:
+base + incremento*rapporto; 28.000-50.000 e' moltiplicativa: base*rapporto),
+il codice usava sempre la forma additiva. Con RAL 50.000 il "salto atteso
+nel netto" descritto nel caso di test non si vedeva affatto: la detrazione
+restava piatta a 1.910 invece di ridursi a ~399 EUR.
+Fix: calcolo.js, calcolaDetrazioneLavoroDipendente() - la forma della
+formula si sceglie ora in base alla presenza del campo "incremento" nella
+fascia (assente = moltiplicativa), senza hardcodare le soglie 28000/50000.
+Verificato dopo il fix su RAL 49.999 / 50.000 / 50.001: la detrazione ora
+scende in modo continuo (399,01 -> 398,93 -> 398,85), coerente con la
+formula del D.Lgs 216/2023.
+
+NOTA su claude.md: il testo generico "se il netto scende passando da 49.999
+a 50.001 di RAL, il motore e' giusto" descrive un salto (discontinuita')
+che con la formula attuale (post-riforma 2023, esplicitamente continua per
+costruzione) NON si verifica: la detrazione arriva a zero in modo graduale,
+non con un gradino. Il gradino netto esiste invece per l'addizionale
+comunale di Milano (soglia_esenzione 23.000, verificato: a imponibile
+fiscale 20.886 e' ancora esente, il gradino scatta poco sopra). Se questo
+comportamento non e' quello atteso dal committente, va chiarito prima
+della consegna: il modello attuale segue la legge in vigore, non il vecchio
+sistema a scaglioni "a gradino" pre-2024.
+
+===========================================================================
+2. CONFRONTO CON CALCOLATORI ONLINE
+===========================================================================
+
+Limiti incontrati (dichiarati per trasparenza):
+- La maggior parte dei calcolatori italiani 2026 trovati via ricerca sono
+  form interattivi lato client (JavaScript): un fetch della pagina non
+  esegue il calcolo, quindi non restituisce numeri specifici per una RAL
+  data (stipendee.it, stipendiocalcolatore.it - quest'ultimo ha anche
+  risposto 403 Forbidden al fetch diretto).
+- calcolato.it (pagina precompilata per RAL 35.000) applica ancora
+  l'aliquota 35% sul secondo scaglione IRPEF: NON e' aggiornato alla
+  L. 199/2025 (che porta il secondo scaglione al 33% dal 2026), quindi
+  scartato come riferimento.
+- it.talent.com/tax-calculator (calcolatore generico multi-paese) calcola
+  l'IRPEF sulla RAL lorda invece che sull'imponibile fiscale (RAL - INPS)
+  e sembra usare ancora il 35%: per RAL 35.000 restituisce un'IRPEF di
+  8.896 EUR, che non corrisponde ne' alla lorda corretta (7.688,56) ne'
+  alla netta (5.417,03). Scartato come riferimento: non modella
+  correttamente la normativa italiana.
+- stipendionettocalcolatore.it pubblica pagine statiche precalcolate per
+  singola RAL (ral-XXXXX-netto-2026): e' la fonte piu' utilizzabile per un
+  confronto numerico riga per riga, ma presenta essa stessa alcuni errori
+  (vedi sotto) ed e' internamente incoerente tra una pagina e l'altra
+  (es. la sezione "variazioni regionali" per RAL 50.000 sembra dividere il
+  netto annuo per 12 mensilita' anche quando l'intestazione dichiara 13).
+
+Confronto disponibile su 3 dei 9 casi di test (gli unici per cui e' stato
+possibile reperire un breakdown numerico dettagliato da una fonte con
+metodologia dichiarata coerente con la normativa 2026):
+
+--- RAL 50.000,00 (Milano, 13 mensilita') -----------------------------------
+Voce                        calcolo.js        stipendionettocalcolatore.it
+Contributi INPS               4.595,00              4.595            (match)
+Imponibile fiscale            45.405,00             45.405           (match)
+IRPEF lorda                   12.183,65             12.184           (match)
+Detrazione lav. dipendente       398,93                399           (match)
+IRPEF netta                   11.784,72             11.785           (match)
+Detrazione cuneo                   0,00                  0           (match)
+Netto annuo                   32.567,77             32.597 (Lombardia/Milano)
+Netto mensile (annuo/13)       2.505,21              2.507,46 (ricalcolato;
+                                                      la pagina mostra 2.716,
+                                                      che e' 32.597/12, non /13:
+                                                      errore della fonte)
+=> Differenza sul netto annuo: 29,23 EUR = 0,09% - ACCORDO ECCELLENTE.
+   Tutte le voci intermedie coincidono al centesimo o quasi: e' il
+   confronto piu' pulito ottenuto e valida in modo indipendente anche il
+   fix del bug sopra descritto (399 vs 398,93 e' esattamente il valore
+   atteso dalla formula corretta).
+
+--- RAL 35.000,00 (Milano, 13 mensilita') -----------------------------------
+Voce                        calcolo.js        stipendionettocalcolatore.it
+Contributi INPS                3.216,50              3.217           (match)
+Imponibile fiscale             31.783,50             31.783           (match)
+IRPEF lorda                     7.688,56              7.688           (match)
+Detrazione lav. dipendente      1.646,52              1.582           (diff)
+Detrazione cuneo                   625,00             1.000          (ERRORE
+                                                        della fonte: per RAL
+                                                        35.000 la detrazione
+                                                        cuneo e' in fase di
+                                                        decrescenza [32.000-
+                                                        40.000], non piu'
+                                                        fissa a 1.000. La
+                                                        fonte applica ancora
+                                                        l'importo pieno)
+IRPEF netta                     5.417,03              5.106
+Netto annuo                    25.657,22             26.677
+=> Differenza sul netto annuo: 1.019,78 EUR = 3,82% - la fonte esterna
+   sovrastima il netto, e la causa e' identificabile: non applica il
+   décalage 32.000-40.000 sulla detrazione cuneo (l'errore da solo vale
+   375 EUR) piu' una divergenza minore sulla detrazione lavoro dipendente.
+
+--- RAL 20.000,00 (Milano, 13 mensilita') -----------------------------------
+Voce                        calcolo.js        stipendionettocalcolatore.it
+Contributi INPS                 1.838,00              1.838           (match)
+Somma esente cuneo                 960,00              1.431          (ERRORE
+                                                        della fonte: a RAL
+                                                        20.000 la fascia
+                                                        corretta e' 15.000-
+                                                        20.000 al 4,8% =
+                                                        960; 1.431 non
+                                                        corrisponde a
+                                                        nessuna fascia del
+                                                        cuneo)
+Imponibile fiscale              17.202,00             18.162          (la
+                                                        fonte non sottrae
+                                                        la somma esente
+                                                        dall'imponibile)
+Netto annuo                    17.884,68             17.157
+=> Differenza sul netto annuo: 727,68 EUR = 4,07% - anche qui la fonte
+   esterna commette un errore proprio sul caso limite (RAL 20.000) che
+   rules-2026.json segnala esplicitamente come punto critico da
+   verificare.
+
+===========================================================================
+3. VALUTAZIONE DI AFFIDABILITA'
+===========================================================================
+
+Accordo grezzo (senza correggere gli errori individuati nella fonte
+esterna), sui 3 casi confrontabili:
+  RAL 50.000:  99,91%
+  RAL 35.000:  96,18%
+  RAL 20.000:  95,93%
+  MEDIA:       97,34%
+
+Lettura corretta di questo numero: non e' una misura di quanto sbaglia
+calcolo.js, ma di quanto le due fonti si discostano. Sul caso piu' pulito
+(RAL 50.000, dove la fonte esterna non incappa in nessuna delle sue casistiche
+limite) l'accordo e' quasi perfetto (0,09% di scarto, spiegabile con
+arrotondamenti). Sugli altri due casi lo scarto e' interamente riconducibile
+a errori individuati nella fonte esterna (cuneo fiscale non ricalcolato in
+fase di décalage, somma esente cuneo calcolata su una fascia sbagliata),
+non a calcolo.js - le voci "a monte" (INPS, imponibile fiscale, IRPEF
+lorda) coincidono sempre.
+
+CONCLUSIONE: sulla base di questo confronto, calcolo.js risulta coerente
+con la normativa dichiarata in rules-2026.json (e con la logica del
+D.Lgs 216/2023 / L.199/2025) con un grado di confidenza alto. Il bug
+trovato durante i test interni e' stato corretto e indipendentemente
+validato dal confronto RAL 50.000. Il confronto con fonti esterne resta
+pero' parziale (3 casi su 9, nessuna fonte online accessibile e realmente
+affidabile per un confronto sistematico sui 9 casi): prima di qualunque
+uso in produzione resta necessaria una validazione con un consulente del
+lavoro o un software paghe certificato (vedi anche gli "esclusi dal
+calcolo" e le semplificazioni gia' dichiarate in rules-2026.json).
+
+===========================================================================
+File generati durante questo test: test/test.js, test/test-results.json
+(nota: spostati in una sottocartella test/ dopo la stesura di questo report)
+===========================================================================

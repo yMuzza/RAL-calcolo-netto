@@ -1,0 +1,19 @@
+# Note operative interne (istruzioni di lavoro, non parte della consegna)
+claude.md
+
+# Output generato dai test (si rigenera con "npm test")
+test/test-results.json
+
+# Dipendenze (il progetto non ne usa: questa riga serve solo se in futuro
+# se ne aggiungessero, o per gli strumenti di sviluppo installati al volo)
+node_modules/
+package-lock.json
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Log
+*.log
+npm-debug.log*

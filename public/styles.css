@@ -1,0 +1,415 @@
+:root {
+  --bg: #f5f6fb;
+  --surface: #ffffff;
+  --border: #e4e6f1;
+  --text: #1b1d2b;
+  --text-muted: #6b6f8a;
+  --accent-1: #4f46e5;
+  --accent-2: #0ea5a1;
+  --accent-grad: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  --danger: #d64545;
+  --danger-bg: #fdecec;
+  --radius: 16px;
+  --shadow: 0 20px 40px -20px rgba(31, 32, 65, 0.25);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12131c;
+    --surface: #1a1c29;
+    --border: #2b2e42;
+    --text: #edeef7;
+    --text-muted: #9498b8;
+    --danger: #ff8080;
+    --danger-bg: #3a1f22;
+    --shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+}
+
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 56px 20px 40px;
+}
+
+/* ---------- Hero ---------- */
+
+.hero { text-align: center; margin-bottom: 32px; }
+
+.hero__eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-1);
+  background: color-mix(in srgb, var(--accent-1) 12%, transparent);
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+.hero h1 {
+  font-size: clamp(28px, 5vw, 38px);
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+}
+
+.hero__sub {
+  color: var(--text-muted);
+  margin: 0 auto;
+  max-width: 460px;
+  font-size: 15px;
+}
+
+/* ---------- Card ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px;
+}
+
+.campo-ral label,
+.campo label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.campo-ral__input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 4px 4px 4px 16px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.campo-ral__input-wrap:focus-within {
+  border-color: var(--accent-1);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-1) 15%, transparent);
+}
+
+.campo-ral__valuta {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-right: 8px;
+}
+
+#input-ral {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  padding: 10px 0;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ---------- Accordion ---------- */
+
+.accordion {
+  margin: 18px 0 4px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.accordion summary {
+  cursor: pointer;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+
+.accordion summary::-webkit-details-marker { display: none; }
+
+.accordion summary::after {
+  content: "+";
+  color: var(--text-muted);
+  font-size: 18px;
+  transition: transform 0.15s ease;
+}
+
+.accordion[open] summary::after { transform: rotate(45deg); }
+
+.accordion__body {
+  padding: 4px 16px 16px;
+  display: grid;
+  gap: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.campo select {
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.campo select:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.campo__nota {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13.5px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.checkbox input { margin-top: 3px; accent-color: var(--accent-1); }
+
+/* ---------- Bottone ---------- */
+
+button#btn-calcola {
+  width: 100%;
+  margin-top: 20px;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  background: var(--accent-grad);
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--accent-1) 60%, transparent);
+}
+
+button#btn-calcola:hover { transform: translateY(-1px); }
+button#btn-calcola:active { transform: translateY(0); }
+button#btn-calcola:disabled { opacity: 0.6; cursor: progress; transform: none; }
+
+/* ---------- Errore ---------- */
+
+.messaggio-errore {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+/* ---------- Risultato: cascata ---------- */
+
+.risultato { margin-top: 28px; animation: comparsa 0.35s ease; }
+
+@keyframes comparsa {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cascata {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  border-top: 1px solid var(--border);
+}
+
+.cascata li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.cascata li .voce-label {
+  color: var(--text-muted);
+}
+
+.cascata li .voce-nota {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+.cascata li .voce-valore {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.cascata li .voce-valore.positivo { color: var(--accent-2); }
+.cascata li .voce-valore.negativo { color: var(--danger); }
+
+.cascata li.riga-imponibile {
+  font-weight: 700;
+  background: color-mix(in srgb, var(--accent-1) 6%, transparent);
+  border-radius: 8px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* ---------- Totale ---------- */
+
+.totale {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.totale__blocco {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.totale__blocco--accento {
+  background: var(--accent-grad);
+  border: none;
+  color: white;
+}
+
+.totale__label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.totale__blocco--accento .totale__label { color: rgba(255,255,255,0.85); }
+
+.totale__valore {
+  font-size: 24px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.totale__mensilita {
+  font-size: 11px;
+  color: rgba(255,255,255,0.8);
+}
+
+/* ---------- Waterfall ---------- */
+
+button#btn-toggle-waterfall {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 11px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+button#btn-toggle-waterfall:hover {
+  border-color: var(--accent-1);
+  color: var(--accent-1);
+  background: color-mix(in srgb, var(--accent-1) 6%, transparent);
+}
+
+.waterfall {
+  margin-top: 16px;
+  padding: 16px 8px 4px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  animation: comparsa 0.25s ease;
+  overflow-x: auto;
+}
+
+.waterfall svg {
+  width: 100%;
+  height: auto;
+  min-width: 300px;
+  display: block;
+}
+
+/* Versione per schermi stretti: il viewBox e' piu' stretto, quindi i
+   testi vanno ingranditi in proporzione per restare leggibili una volta
+   che l'SVG viene scalato alla larghezza del telefono. */
+.waterfall-svg--stretto .waterfall-barra-etichetta { font-size: 13px; }
+.waterfall-svg--stretto .waterfall-barra-valore { font-size: 13px; }
+
+.waterfall-barra-etichetta {
+  font-size: 11px;
+  fill: var(--text-muted);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.waterfall-barra-valore {
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: var(--text);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.waterfall-connettore {
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+  text-align: center;
+  margin-top: 28px;
+  padding: 0 12px;
+}
+
+.footer p {
+  font-size: 12px;
+  color: var(--text-muted);
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+@media (max-width: 420px) {
+  .totale { grid-template-columns: 1fr; }
+  .card { padding: 20px; }
+}

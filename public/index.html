@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Da RAL a Netto</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%82%AC%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <span class="hero__eyebrow">Prototipo &middot; anno d'imposta 2026</span>
+      <h1>Da RAL a netto, in un secondo.</h1>
+      <p class="hero__sub">Impiegato a tempo indeterminato, Milano. Inserisci la RAL e vedi ogni passaggio, dal lordo alla busta paga.</p>
+    </header>
+
+    <main class="card">
+      <form id="form-calcolo" novalidate>
+        <div class="campo-ral">
+          <label for="input-ral">RAL annua lorda</label>
+          <div class="campo-ral__input-wrap">
+            <span class="campo-ral__valuta">&euro;</span>
+            <input type="text" id="input-ral" name="ral" placeholder="35.000" inputmode="numeric" autocomplete="off" enterkeyhint="go" required autofocus>
+          </div>
+        </div>
+
+        <details class="accordion" id="accordion-opzioni">
+          <summary>Opzioni avanzate</summary>
+          <div class="accordion__body">
+            <div class="campo">
+              <label for="input-mensilita">Mensilit&agrave;</label>
+              <select id="input-mensilita" name="mensilita">
+                <option value="12">12</option>
+                <option value="13" selected>13</option>
+                <option value="14">14</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="input-comune">Comune</label>
+              <select id="input-comune" name="comune" disabled>
+                <option selected>Milano</option>
+              </select>
+              <p class="campo__nota">Unico comune supportato in questo prototipo.</p>
+            </div>
+            <div class="campo campo--checkbox">
+              <label class="checkbox">
+                <input type="checkbox" id="input-over50" name="over50">
+                <span>Azienda con pi&ugrave; di 50 dipendenti (INPS 9,49% invece di 9,19%)</span>
+              </label>
+            </div>
+          </div>
+        </details>
+
+        <button type="submit" id="btn-calcola">
+          <span class="btn-label">Calcola il netto</span>
+        </button>
+      </form>
+
+      <p id="messaggio-errore" class="messaggio-errore" hidden></p>
+
+      <section id="risultato" class="risultato" hidden aria-live="polite">
+        <ol class="cascata" id="cascata"></ol>
+
+        <div class="totale">
+          <div class="totale__blocco">
+            <span class="totale__label">Netto annuo</span>
+            <span class="totale__valore" id="netto-annuo">&euro; 0</span>
+          </div>
+          <div class="totale__blocco totale__blocco--accento">
+            <span class="totale__label">Netto mensile</span>
+            <span class="totale__valore" id="netto-mensile">&euro; 0</span>
+            <span class="totale__mensilita" id="netto-mensilita-label"></span>
+          </div>
+        </div>
+
+        <button type="button" id="btn-toggle-waterfall" class="btn-secondario" aria-expanded="false" aria-controls="waterfall-container">
+          Mostra andamento a cascata
+        </button>
+        <div id="waterfall-container" class="waterfall" hidden>
+          <svg id="waterfall-svg" viewBox="0 0 640 300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Grafico a cascata da RAL a netto"></svg>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Calcolo semplificato: nessun familiare a carico, nessun altro reddito, nessuna agevolazione speciale. Dettagli e fonti normative nel README del progetto.</p>
+    </footer>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

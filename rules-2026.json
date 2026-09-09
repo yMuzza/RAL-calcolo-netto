@@ -1,0 +1,250 @@
+{
+  "meta": {
+    "anno_imposta": 2026,
+    "versione": "1.0.0",
+    "ultimo_aggiornamento": "2026-09-09",
+    "descrizione": "Parametri fiscali e contributivi per il calcolo RAL -> netto di un impiegato a tempo indeterminato residente a Milano. Ogni blocco riporta la fonte normativa e il link di verifica.",
+    "normativa_di_riferimento": [
+      "D.P.R. 917/1986 (TUIR), artt. 11 e 13",
+      "D.Lgs. 216/2023 (riforma IRPEF - detrazioni)",
+      "L. 207/2024 (Bilancio 2025 - cuneo fiscale, art. 1 commi 4 e 6)",
+      "L. 199/2025 (Bilancio 2026 - riduzione II scaglione al 33%, cuneo reso strutturale)",
+      "D.L. 3/2020 conv. L. 21/2020 (trattamento integrativo)",
+      "D.Lgs. 360/1998 (addizionali regionali e comunali)",
+      "Circolare INPS n. 6/2026 (minimali, massimali, aliquote)"
+    ]
+  },
+
+  "assunzioni_del_modello": {
+    "profilo": "Impiegato, contratto a tempo indeterminato, full-time",
+    "settore_inps": "Terziario / commercio - datore privato non agricolo",
+    "residenza_fiscale": "Milano (Lombardia) al 1 gennaio dell'anno d'imposta",
+    "giorni_detrazione": 365,
+    "altri_redditi": 0,
+    "familiari_a_carico": 0,
+    "agevolazioni_speciali": "nessuna (no impatriati, no bonus mamme, no premi di risultato)",
+    "escluso_dal_calcolo": [
+      "TFR (accantonato, non erogato in busta paga)",
+      "Contributi a carico azienda (~23,81% + INAIL): rilevanti solo per il costo aziendale",
+      "Fringe benefit, buoni pasto, welfare aziendale",
+      "Conguaglio di fine anno e tassazione separata della tredicesima",
+      "Detrazioni per oneri (spese sanitarie, mutuo, ecc.) recuperabili in 730"
+    ]
+  },
+
+  "previdenza": {
+    "fonte": "INPS - Circolare n. 6/2026; INPS notizia 02/02/2026 'Lavoratori dipendenti: limite minimo di retribuzione giornaliera 2026'",
+    "url": "https://www.inps.it/it/it/inps-comunica/notizie/dettaglio-news-page.news.2026.02.lavoratori-dipendenti-limite-minimo-di-retribuzione-giornaliera-2026.html",
+    "base_di_calcolo": "RAL (imponibile previdenziale)",
+    "aliquota_ivs_dipendente": 0.0919,
+    "nota_aliquota": "9,19% e' l'aliquota standard per impiegati del settore privato non agricolo. Aziende del terziario con oltre 50 dipendenti applicano il 9,49% (contributo CIGS aggiuntivo dello 0,30%). Apprendisti: 5,84%.",
+    "aliquota_alternativa_over50_dipendenti": 0.0949,
+    "contributo_aggiuntivo_1_percento": {
+      "attivo": true,
+      "aliquota": 0.01,
+      "soglia_prima_fascia_annua": 56224,
+      "nota": "Il DL 384/1992 prevede un +1% sulla quota di retribuzione eccedente la prima fascia di retribuzione pensionabile. Si applica solo alla parte eccedente, non all'intero imponibile."
+    },
+    "massimale_annuo": {
+      "importo": 122295,
+      "nota": "Si applica solo ai lavoratori iscritti alla previdenza obbligatoria dal 1 gennaio 1996 (sistema contributivo puro). Oltre questa soglia non si versano contributi IVS. Per gli iscritti ante-1996 il massimale non opera."
+    },
+    "minimale_giornaliero": 58.13
+  },
+
+  "irpef": {
+    "fonte": "TUIR art. 11, come modificato dalla L. 199/2025 (Legge di Bilancio 2026), art. 1 co. 3",
+    "url": "https://www.agenziaentrate.gov.it/portale/aliquote-e-calcolo-dell-irpef",
+    "base_di_calcolo": "imponibile_fiscale = RAL - contributi_inps_dipendente",
+    "metodo": "progressivo per scaglioni: ogni aliquota si applica solo alla quota di reddito compresa nello scaglione",
+    "scaglioni": [
+      { "da": 0,     "a": 28000, "aliquota": 0.23 },
+      { "da": 28000, "a": 50000, "aliquota": 0.33 },
+      { "da": 50000, "a": null,  "aliquota": 0.43 }
+    ],
+    "novita_2026": "Il secondo scaglione scende dal 35% al 33%. Risparmio massimo di circa 440 EUR/anno per redditi >= 50.000 EUR."
+  },
+
+  "detrazione_lavoro_dipendente": {
+    "fonte": "TUIR art. 13 co. 1 e 1-bis, struttura introdotta dal D.Lgs. 216/2023 e confermata dalla L. 199/2025",
+    "url": "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:decreto.del.presidente.della.repubblica:1986-12-22;917!vig=2026-01-01~art13",
+    "base_di_calcolo": "reddito complessivo (= imponibile fiscale, nel nostro modello semplificato)",
+    "applicazione": "riduce l'IRPEF lorda; non puo' generare credito (il risultato e' floorato a zero)",
+    "ragguaglio_giorni": {
+      "attivo": true,
+      "giorni_anno": 365,
+      "nota": "La detrazione va rapportata ai giorni di lavoro nell'anno. Nel prototipo si assume 365."
+    },
+    "fasce": [
+      {
+        "da": 0,
+        "a": 15000,
+        "tipo": "fisso",
+        "importo": 1955,
+        "minimo_garantito_tempo_indeterminato": 1380,
+        "minimo_garantito_tempo_determinato": 690
+      },
+      {
+        "da": 15000,
+        "a": 28000,
+        "tipo": "formula",
+        "formula": "1910 + 1190 * (28000 - reddito) / 13000",
+        "base": 1910,
+        "incremento": 1190,
+        "limite_superiore_formula": 28000,
+        "ampiezza": 13000,
+        "nota": "In questa fascia la formula produce legittimamente importi superiori a 1.955 EUR per redditi appena sopra i 15.000."
+      },
+      {
+        "da": 28000,
+        "a": 50000,
+        "tipo": "formula",
+        "formula": "1910 * (50000 - reddito) / 22000",
+        "base": 1910,
+        "limite_superiore_formula": 50000,
+        "ampiezza": 22000
+      },
+      {
+        "da": 50000,
+        "a": null,
+        "tipo": "fisso",
+        "importo": 0,
+        "nota": "Soglia netta: anche 50.001 EUR di reddito azzera completamente la detrazione."
+      }
+    ],
+    "maggiorazione_art_13_comma_1bis": {
+      "attivo": true,
+      "importo": 65,
+      "reddito_da": 25000,
+      "reddito_a": 35000,
+      "nota": "Maggiorazione di 65 EUR per redditi complessivi tra 25.000 e 35.000 EUR, rapportata ai giorni di lavoro."
+    }
+  },
+
+  "cuneo_fiscale": {
+    "fonte": "L. 207/2024 art. 1 commi 4 e 6, resa strutturale dalla L. 199/2025",
+    "url": "https://www.agenziaentrate.gov.it/portale/",
+    "base_di_calcolo": "reddito di lavoro dipendente (RAL), NON l'imponibile fiscale",
+    "nota_importante": "Attenzione: i due binari usano basi diverse. La somma esente non concorre a formare reddito ne' imponibile IRPEF; la detrazione aggiuntiva abbatte invece l'IRPEF lorda.",
+    "binario_1_somma_esente": {
+      "descrizione": "Somma esclusa dalla formazione del reddito - voce cedolino 'Somma non imponibile art. 1 c. 4'",
+      "soglia_massima": 20000,
+      "fasce": [
+        { "da": 0,     "a": 8500,  "percentuale": 0.071 },
+        { "da": 8500,  "a": 15000, "percentuale": 0.053 },
+        { "da": 15000, "a": 20000, "percentuale": 0.048 }
+      ],
+      "nota": "La percentuale si applica all'INTERO reddito da lavoro dipendente, non per scaglioni."
+    },
+    "binario_2_detrazione_aggiuntiva": {
+      "descrizione": "Ulteriore detrazione d'imposta - voce cedolino 'Detrazione art. 1 c. 6'",
+      "fasce": [
+        {
+          "da": 20000,
+          "a": 32000,
+          "tipo": "fisso",
+          "importo": 1000
+        },
+        {
+          "da": 32000,
+          "a": 40000,
+          "tipo": "formula",
+          "formula": "1000 * (40000 - reddito) / 8000",
+          "nota": "Decrescenza lineare fino ad azzerarsi a 40.000 EUR."
+        },
+        {
+          "da": 40000,
+          "a": null,
+          "tipo": "fisso",
+          "importo": 0
+        }
+      ]
+    }
+  },
+
+  "trattamento_integrativo": {
+    "fonte": "D.L. 3/2020 conv. L. 21/2020 (ex bonus Renzi)",
+    "base_di_calcolo": "reddito complessivo",
+    "importo_massimo": 1200,
+    "soglia_massima_reddito": 28000,
+    "regole": [
+      {
+        "da": 0,
+        "a": 15000,
+        "importo": 1200,
+        "condizione": "spetta solo se IRPEF lorda > detrazione lavoro dipendente spettante"
+      },
+      {
+        "da": 15000,
+        "a": 28000,
+        "importo": "min(1200, somma_detrazioni_qualificate - irpef_lorda)",
+        "condizione": "spetta solo se la somma delle detrazioni qualificate supera l'imposta lorda; l'importo e' pari alla differenza"
+      }
+    ],
+    "nota_prototipo": "Nel caso standard senza familiari a carico e senza oneri detraibili, il trattamento integrativo raramente spetta sopra i 15.000 EUR. Implementato ma con effetto quasi sempre nullo nel profilo di default."
+  },
+
+  "addizionale_regionale": {
+    "regione": "Lombardia",
+    "fonte": "Delibera Regione Lombardia; banca dati Dipartimento delle Finanze - MEF",
+    "url": "https://www1.finanze.gov.it/finanze/analisi_stat/public/index.php?search_class%5B0%5D=cADDIRPEF&opendata=yes",
+    "base_di_calcolo": "imponibile fiscale (stessa base IRPEF)",
+    "metodo": "progressivo per scaglioni",
+    "scaglioni": [
+      { "da": 0,     "a": 15000, "aliquota": 0.0123 },
+      { "da": 15000, "a": 28000, "aliquota": 0.0158 },
+      { "da": 28000, "a": 50000, "aliquota": 0.0172 },
+      { "da": 50000, "a": null,  "aliquota": 0.0173 }
+    ],
+    "nota_verifica": "Le aliquote regionali possono essere rideliberate ogni anno. Verificare sulla banca dati MEF prima di ogni rilascio.",
+    "nota_temporale": "L'addizionale regionale viene trattenuta in busta paga in 11 rate da gennaio a novembre dell'ANNO SUCCESSIVO. Il prototipo la imputa per competenza all'anno di maturazione (semplificazione dichiarata)."
+  },
+
+  "addizionale_comunale": {
+    "comune": "Milano",
+    "fonte": "Delibera del Comune di Milano depositata sul portale MEF",
+    "url": "https://www1.finanze.gov.it/finanze/analisi_stat/public/index.php?search_class%5B0%5D=cAddCom&opendata=yes",
+    "base_di_calcolo": "imponibile fiscale (stessa base IRPEF)",
+    "metodo": "aliquota unica con soglia di esenzione",
+    "aliquota": 0.008,
+    "soglia_esenzione": 23000,
+    "tipo_esenzione": "soglia_secca",
+    "nota_esenzione": "Chi ha imponibile fino a 23.000 EUR non paga nulla. Superata la soglia, l'addizionale e' dovuta sull'INTERO imponibile (non solo sull'eccedenza). Questo genera un gradino nella curva del netto: da verificare in fase di test.",
+    "nota_verifica": "Alla data di stesura il Comune di Milano non aveva ancora deliberato per il 2026: resta in vigore l'aliquota 2025. Verificare sul portale MEF."
+  },
+
+  "mensilita": {
+    "default": 13,
+    "valori_ammessi": [12, 13, 14],
+    "nota": "Il numero di mensilita' e' fissato dal CCNL, non scelto dal lavoratore. Il CCNL Terziario/Commercio prevede 14 mensilita'; molti CCNL ne prevedono 13. Il prototipo usa 13 come default e lo rende modificabile.",
+    "nota_tredicesima": "Nella realta' la tredicesima subisce tassazione marginale quasi piena (le detrazioni sono gia' distribuite sui 12 mesi ordinari), quindi il netto della mensilita' aggiuntiva e' inferiore a quello di un mese ordinario. Il prototipo divide il netto annuo in parti uguali: semplificazione dichiarata."
+  },
+
+  "pipeline_di_calcolo": [
+    "1. RAL (input utente)",
+    "2. Contributi INPS = RAL * 9,19% (+1% sulla quota oltre 56.224, cap al massimale 122.295)",
+    "3. Somma esente cuneo (solo se RAL <= 20.000): non concorre all'imponibile",
+    "4. Imponibile fiscale = RAL - contributi INPS - somma esente cuneo",
+    "5. IRPEF lorda = scaglioni progressivi 23/33/43 sull'imponibile",
+    "6. Detrazione lavoro dipendente (art. 13 TUIR) + maggiorazione 65 EUR",
+    "7. Detrazione aggiuntiva cuneo (solo se RAL tra 20.000 e 40.000)",
+    "8. IRPEF netta = max(0, IRPEF lorda - detrazioni)",
+    "9. Trattamento integrativo (somma, non detrazione)",
+    "10. Addizionale regionale Lombardia (scaglioni sull'imponibile)",
+    "11. Addizionale comunale Milano (0,8% se imponibile > 23.000)",
+    "12. Netto annuo = imponibile - IRPEF netta - addizionali + somma esente + trattamento integrativo",
+    "13. Netto mensile = netto annuo / mensilita'"
+  ],
+
+  "casi_di_test": [
+    { "ral": 20000, "nota": "confine somma esente / detrazione aggiuntiva" },
+    { "ral": 23000, "nota": "confine esenzione addizionale comunale Milano - verificare il gradino" },
+    { "ral": 28000, "nota": "confine I/II scaglione IRPEF e fine trattamento integrativo" },
+    { "ral": 32000, "nota": "inizio decrescenza detrazione cuneo" },
+    { "ral": 35000, "nota": "caso standard di riferimento - fine maggiorazione 65 EUR" },
+    { "ral": 40000, "nota": "azzeramento cuneo fiscale" },
+    { "ral": 50000, "nota": "azzeramento detrazione lavoro dipendente - salto atteso nel netto" },
+    { "ral": 56224, "nota": "attivazione contributo aggiuntivo INPS 1%" },
+    { "ral": 122295, "nota": "massimale contributivo INPS" }
+  ]
+}
