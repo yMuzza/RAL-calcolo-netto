@@ -45,7 +45,7 @@ Comparirà qualcosa del genere:
   Sito avviato. Aprilo qui:
 
     Su questo computer:      http://localhost:3000
-    Da telefono o tablet:    http://192.168.1.46:3000   (stessa rete Wi-Fi)
+    Da telefono o tablet:    http://[iP]:3000   (stessa rete Wi-Fi)
 
   Per fermare il server: premi Ctrl+C in questa finestra.
 ```
